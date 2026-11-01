@@ -1,6 +1,8 @@
 # PJN Novedades
 
-**Te avisa cuando en tus causas del Poder Judicial de la Nación sale un primer auto o una sentencia**, y te arma un Excel con todas las actuaciones nuevas y sus PDFs.
+**Lee las novedades de tus causas del Poder Judicial de la Nación y las junta en un Excel, para que no tengas que entrar al portal del PJN a revisarlas una por una.**
+
+En **ejecuciones fiscales**, además, te avisa cuando sale un **primer auto** o una **sentencia**.
 
 Funciona con los avisos por mail que ya te manda el PJN: no hay que cargar las causas a mano.
 
@@ -10,13 +12,13 @@ Funciona con los avisos por mail que ya te manda el PJN: no hay que cargar las c
 
 - Lee de tu **Gmail** los avisos de novedades del PJN (`scw-noreply@pjn.gov.ar`).
 - Entra al **PJN con tu usuario**, abre cada causa con novedades y lee las actuaciones nuevas.
-- Baja el **PDF** de cada actuación nueva.
-- Te muestra **alertas**:
+- Guarda cada actuación nueva con los datos que muestra el portal del PJN (**fecha, tipo, descripción/detalle y fojas**) y baja su **PDF**.
+- En ejecuciones fiscales te muestra **alertas**:
   - **Primeros autos** y **sentencias** que aparecieron **en el último barrido**.
   - **Primeros autos** y **sentencias del mes**, con un selector para ver meses anteriores.
 - Arma un **Excel** con hojas de Alertas, Por mes, Actuaciones, Causas, Mails del PJN y Corridas.
 
-Todo corre **en tu PC**. No hay servidores, nubes ni cuentas nuevas.
+Todo corre **en tu PC**. No hay servidores, nubes ni cuentas nuevas, y **no usa inteligencia artificial** (ver [Sin inteligencia artificial](#sin-inteligencia-artificial)).
 
 ## ¿Cómo lo hace?
 
@@ -39,9 +41,20 @@ flowchart LR
 
 Si una causa falla (el PJN no respondió, por ejemplo), sus avisos quedan pendientes y se reintentan en el próximo barrido.
 
+## Sin inteligencia artificial
+
+- La app es **Python y HTML puro**. No usa ChatGPT, Claude, Gemini ni ningún otro modelo de lenguaje (LLM): ni para leer los mails, ni para revisar las causas, ni para decidir qué es un primer auto o una sentencia.
+- Las alertas salen de **reglas fijas**: patrones de texto sobre el tipo y el detalle de cada actuación, escritos en [`clasificador.py`](clasificador.py). La misma actuación da siempre el mismo resultado.
+- La app se conecta **sólo a dos lugares**:
+  - **Gmail**, para leer los avisos del PJN de tu propia cuenta.
+  - **El portal del PJN**, donde entra con tu usuario y consulta tus causas, igual que si lo hicieras vos a mano.
+
+  No manda tus datos a ningún otro lado: no hay servidores propios, estadísticas de uso ni terceros.
+- Si usás un asistente de IA para [instalarla](#instalación-con-ayuda-de-un-asistente-de-ia), interviene sólo en la instalación: la app funciona sin él. Lo que escribas en ese chat sí lo ve el asistente; por eso las claves se cargan en el formulario de la app y nunca en el chat.
+
 ## Qué necesitás
 
-- Una PC con **Windows 10 u 11**. También anda en Mac o Linux; ver [Instalación en Mac o Linux](#instalación-en-mac-o-linux).
+- Una PC con **Windows 10 u 11**. En Mac o Linux debería andar, pero **no está probado**; ver [Instalación en Mac o Linux](#instalación-en-mac-o-linux).
 - Una cuenta de **Gmail** donde te lleguen los avisos del PJN, con la **verificación en 2 pasos** activada.
 - Tu **usuario y clave del PJN**.
 - Internet desde una conexión **de Argentina**: casa u oficina. El PJN bloquea conexiones desde servidores en la nube.
@@ -52,7 +65,7 @@ Si una causa falla (el PJN no respondió, por ejemplo), sus avisos quedan pendie
 2. Doble click en **`instalar.bat`**. Instala Python si no lo tenés, las librerías y el navegador que usa la app. Tarda unos minutos y se hace **una sola vez**. Al final te ofrece crear un acceso directo en el Escritorio.
 3. Doble click en **`iniciar.bat`** (o en el acceso directo). Se abre la app en tu navegador, en `http://127.0.0.1:8770`.
 
-> **¿Te trabás?** Usá Claude Code para que te guíe. Ver [Instalación con ayuda de Claude Code](#instalación-con-ayuda-de-claude-code).
+> **¿Te trabás?** Usá un asistente de IA (Claude Code, Codex o Gemini CLI) para que te guíe. Ver [Instalación con ayuda de un asistente de IA](#instalación-con-ayuda-de-un-asistente-de-ia).
 
 ## Primer uso: la configuración
 
@@ -70,7 +83,9 @@ La app no usa tu clave de Gmail. Usa una **contraseña de aplicación**: una cla
 
 ### 2 · Usuario del PJN
 
-Tu CUIT/CUIL. **La clave del PJN no se guarda nunca**: la app te la pide cada vez que la abrís y la olvida al cerrarla.
+Tu CUIT/CUIL. Queda guardado: cada vez que abras la app vas a ver tu usuario ya cargado y sólo vas a tener que escribir la clave.
+
+**La clave del PJN no se guarda nunca**: la app te la pide cada vez que la abrís y la olvida al cerrarla.
 
 ### 3 · Opciones
 
@@ -133,13 +148,12 @@ datos/
 
 - **No escribas en el Excel**: se reemplaza en cada barrido. Para anotar, copiá la hoja a otro archivo.
 - Si el Excel está abierto durante un barrido, Windows no deja actualizarlo. No se pierde nada: cerralo y tocá **Buscar novedades** de nuevo.
-- **¿Google Sheets?** Elegí como carpeta de datos una carpeta de **Google Drive para escritorio** o de **OneDrive**: el Excel y los PDFs quedan en la nube, y Google Sheets abre el Excel directo. Así no hay que configurar APIs, proyectos de Google Cloud ni permisos.
-
-> **¿Por qué Excel y no Google Sheets directo?** Escribir en Google Sheets exige crear un proyecto en Google Cloud, una "cuenta de servicio" y compartir la planilla con ella. Es demasiado para instalar en cada estudio. El Excel no necesita nada, y con la carpeta sincronizada se llega al mismo lugar.
+- **¿Google Sheets?** Elegí como carpeta de datos una carpeta de **Google Drive para escritorio** o de **OneDrive**: el Excel y los PDFs quedan en la nube, y Google Sheets abre el Excel directo.
 
 ## Seguridad y privacidad
 
-- **La clave del PJN no se guarda en ningún lado.** Vive en memoria mientras la app está abierta.
+- **Tu usuario del PJN** (CUIT/CUIL) queda guardado en el archivo `.env`, así aparece ya cargado cada vez que entrás.
+- **La clave del PJN no se guarda en ningún lado.** La escribís cada vez que abrís la app y se olvida al cerrarla.
 - **La contraseña de aplicación de Gmail** se guarda en el archivo `.env` de la carpeta de la app, en tu PC. Sirve sólo para leer el correo. Si alguna vez se compromete, revocala en [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
 - La app **sólo lee** tu Gmail: busca los mails de `scw-noreply@pjn.gov.ar`. No manda mails, no borra y no marca nada como leído.
 - La app escucha sólo en `127.0.0.1`: **no es accesible desde otra computadora** de la red.
@@ -157,16 +171,22 @@ datos/
 | "Mail sin link a la causa" | Ese aviso no traía el link al SCW. Abrí la causa a mano desde el PJN. |
 | Tope de 5 páginas en una causa | Entre dos barridos se juntaron más de 75 actuaciones. Revisá la causa a mano por si falta algo más viejo. |
 
-## Instalación con ayuda de Claude Code
+## Instalación con ayuda de un asistente de IA
 
-Si tenés [Claude Code](https://claude.com/claude-code), abrilo en la carpeta descomprimida de la app y pegale este mensaje:
+Sirve cualquiera de estos:
+
+- [Claude Code](https://claude.com/claude-code), de Anthropic.
+- [Codex](https://developers.openai.com/codex), de OpenAI. *No probado.*
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli), de Google. *No probado.*
+
+Abrilo en la carpeta descomprimida de la app y pegale este mensaje:
 
 ```text
 Hola. Quiero instalar y configurar la app "PJN Novedades" que está en esta carpeta.
 No soy programador/a: soy abogado/a. Guiame paso a paso, de a un paso por vez, en
 castellano simple, y ejecutá vos los comandos que haga falta.
 
-Antes de empezar leé CLAUDE.md y README.md.
+Antes de empezar leé AGENTS.md y README.md.
 
 Reglas:
 - Nunca me pidas que te escriba contraseñas en el chat (ni la de aplicación de Gmail
@@ -177,9 +197,11 @@ Objetivo: dejar la app abierta en el navegador, con la configuración guardada y
 conexión con Gmail probada.
 ```
 
-El archivo [`CLAUDE.md`](CLAUDE.md) le da a Claude Code el paso a paso, los problemas típicos y estas mismas reglas, aunque no pegues el mensaje.
+El archivo [`AGENTS.md`](AGENTS.md) le da al asistente el paso a paso, los problemas típicos y estas mismas reglas, aunque no pegues el mensaje. Codex lo lee directo; Claude Code y Gemini CLI, a través de `CLAUDE.md` y `GEMINI.md`.
 
 ## Instalación en Mac o Linux
+
+> **No probado.** La app está pensada y probada en Windows.
 
 ```bash
 python3 -m pip install -r requirements.txt
