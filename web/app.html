@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PJN Novedades</title>
+<style>
+:root {
+  --bg: #f4f5f7; --card: #ffffff; --text: #1d2330; --muted: #6b7280; --line: #e3e6eb;
+  --accent: #2557d6; --accent-soft: #e8eefc; --ok: #1f8a4c; --ok-soft: #e6f4ea;
+  --warn: #b7791f; --err: #c53030; --console: #12161f; --console-text: #e6e9ef;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151b; --card: #1b2029; --text: #e6e9ef; --muted: #9aa3b2; --line: #2b3240;
+    --accent: #6d93ff; --accent-soft: #24304a; --ok: #4cc27f; --ok-soft: #1e3328;
+    --warn: #e0a84a; --err: #f07272; --console: #0b0e13;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.45 "Segoe UI", system-ui, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 18px; flex-wrap: wrap; }
+h1 { font-size: 20px; margin: 0; }
+h1 small { color: var(--muted); font-weight: 400; font-size: 14px; }
+h3 { font-size: 16px; margin: 0 0 4px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 18px 20px; margin-bottom: 16px; }
+.card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+.row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.spacer { flex: 1; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+button { font: inherit; border-radius: 8px; border: 1px solid var(--line); padding: 8px 14px;
+  background: var(--card); color: var(--text); cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button.big { padding: 12px 22px; font-size: 16px; }
+button.stop { border: 2px solid var(--err); color: var(--err); font-weight: 700; }
+button.link { border: none; background: none; color: var(--muted); padding: 4px 6px; }
+input[type=text], input[type=password], input[type=email], input[type=number], select {
+  font: inherit; width: 100%; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 4px; font-weight: 600; }
+.hint { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.check { display: flex; gap: 8px; align-items: center; margin-top: 14px; font-size: 14px; }
+.check input { width: 16px; height: 16px; }
+.error { color: var(--err); margin-top: 10px; min-height: 1.2em; white-space: pre-line; }
+.okmsg { color: var(--ok); margin-top: 10px; white-space: pre-line; }
+.big-n { font-size: 26px; font-weight: 700; }
+.step { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700;
+  margin-right: 8px; }
+details.ayuda { background: var(--accent-soft); border-radius: 8px; padding: 10px 14px; margin-top: 10px; }
+details.ayuda summary { cursor: pointer; font-weight: 600; color: var(--accent); font-size: 14px; }
+details.ayuda ol { margin: 8px 0 2px; padding-left: 20px; font-size: 14px; }
+details.ayuda li { margin-bottom: 4px; }
+
+#login, #config { max-width: 620px; margin: 4vh auto 0; }
+#login { max-width: 400px; }
+.estado-titulo { font-size: 20px; font-weight: 700; }
+.bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin: 14px 0 12px; }
+.bar > div { height: 100%; width: 0; background: var(--accent); transition: width .4s; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+.stat { background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+.stat b { display: block; font-size: 18px; }
+.stat span { font-size: 12px; color: var(--muted); }
+pre#log { background: var(--console); color: var(--console-text); border-radius: 8px;
+  padding: 12px 14px; height: 280px; overflow-y: auto; margin: 0;
+  font: 12.5px/1.5 Consolas, "Cascadia Mono", monospace; white-space: pre-wrap; word-break: break-word; }
+pre#log .ok { color: #6fdc9b; } pre#log .warn { color: #f3c969; } pre#log .error { color: #ff8a8a; }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.tab { border-radius: 99px; padding: 6px 14px; font-size: 14px; }
+.tab.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.tabs select { width: auto; padding: 6px 10px; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.col-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.col-head .n { font-size: 22px; font-weight: 700; }
+.pa .n { color: var(--accent); } .se .n { color: var(--ok); }
+.item { border-left: 4px solid var(--accent); background: var(--bg); border-radius: 6px;
+  padding: 8px 10px; margin-bottom: 8px; }
+.se .item { border-left-color: var(--ok); }
+.item .exp { font-weight: 700; }
+.item .car { font-size: 13px; color: var(--muted); }
+.item .det { font-size: 14px; margin-top: 2px; }
+.item .links { font-size: 13px; margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
+.vacio { font-size: 14px; color: var(--muted); padding: 6px 0; }
+.chip { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; font-weight: 600;
+  background: var(--accent-soft); color: var(--accent); }
+.chip.OK { background: var(--ok-soft); color: var(--ok); }
+.chip.ERRORES, .chip.INTERRUMPIDA { background: color-mix(in srgb, var(--err) 18%, transparent); color: var(--err); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+td, th { padding: 6px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; }
+td.n, th.n { text-align: right; }
+.hidden { display: none !important; }
+@media (max-width: 700px) {
+  .cols { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .hide-sm { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Configuración -->
+  <section id="config" class="hidden">
+    <div class="card">
+      <h1>PJN Novedades <small>· Configuración</small></h1>
+      <p class="muted">Completá estos datos una sola vez. Se guardan en un archivo <code>.env</code> en esta
+        PC; no se suben a ningún lado. Podés volver a cambiarlos cuando quieras.</p>
+
+      <form id="form-config" autocomplete="off">
+        <h3 style="margin-top:18px"><span class="step">1</span>Gmail donde te llegan los avisos del PJN</h3>
+        <label for="GMAIL_USUARIO">Dirección de Gmail</label>
+        <input id="GMAIL_USUARIO" type="email" placeholder="nombre@gmail.com" required>
+        <label for="GMAIL_CLAVE_APP">Contraseña de aplicación (16 letras)</label>
+        <input id="GMAIL_CLAVE_APP" type="password" placeholder="abcd efgh ijkl mnop" autocomplete="new-password">
+        <div class="hint" id="clave-guardada"></div>
+        <details class="ayuda">
+          <summary>¿Cómo saco la contraseña de aplicación? (2 minutos)</summary>
+          <ol>
+            <li>Tu cuenta de Google tiene que tener la <b>verificación en 2 pasos</b> activada
+              (<a href="https://myaccount.google.com/signinoptions/two-step-verification" target="_blank" rel="noopener">activarla acá</a>).</li>
+            <li>Entrá a <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a>
+              con la misma cuenta de Gmail.</li>
+            <li>En "Nombre de la app" escribí <b>PJN Novedades</b> y tocá <b>Crear</b>.</li>
+            <li>Google muestra 16 letras en un recuadro amarillo. Copialas y pegalas arriba (con o sin espacios).</li>
+          </ol>
+          <div class="small muted">No es tu clave de Gmail: es una clave aparte que sirve sólo para leer el correo
+            y que podés revocar en esa misma página cuando quieras. La app sólo <b>lee</b> los mails del PJN
+            (<code>scw-noreply@pjn.gov.ar</code>): no los borra, no los marca como leídos y no manda mails.</div>
+        </details>
+        <div class="row" style="margin-top:10px">
+          <button type="button" id="btn-probar">Probar conexión con Gmail</button>
+          <span class="muted small" id="probando"></span>
+        </div>
+        <div class="okmsg" id="probar-ok"></div>
+        <div class="error" id="probar-error"></div>
+
+        <h3 style="margin-top:22px"><span class="step">2</span>Usuario del PJN</h3>
+        <label for="PJN_USUARIO">CUIT / CUIL con el que entrás al PJN</label>
+        <input id="PJN_USUARIO" type="text" inputmode="numeric" placeholder="20123456789" required>
+        <div class="hint">La clave del PJN <b>no se guarda</b>: la app te la pide cada vez que la abrís.</div>
+
+        <h3 style="margin-top:22px"><span class="step">3</span>Opciones</h3>
+        <label for="CARPETA_DATOS">Carpeta donde se guardan el Excel y los PDFs</label>
+        <input id="CARPETA_DATOS" type="text" placeholder="datos">
+        <div class="hint" id="carpeta-abs"></div>
+        <div class="hint">Tip: si elegís una carpeta de Google Drive o OneDrive sincronizada en tu PC, el Excel
+          y los PDFs quedan también en la nube, sin configurar nada más.</div>
+        <label for="DIAS_ATRAS">Leer los mails de los últimos … días</label>
+        <input id="DIAS_ATRAS" type="number" min="1" max="90" placeholder="7">
+        <div class="hint">7 alcanza si buscás novedades al menos una vez por semana. La primera vez podés poner más.</div>
+        <label for="FILTRO_CARATULA">Revisar sólo las causas cuya carátula contenga (opcional)</label>
+        <input id="FILTRO_CARATULA" type="text" placeholder="ej: EJECUCION FISCAL, AFIP, ARCA">
+        <div class="hint">Separado por comas. Vacío = revisar todas las causas de las que te llegan avisos.</div>
+        <label class="check"><input type="checkbox" id="DESCARGAR_PDFS"> Descargar el PDF de cada actuación nueva</label>
+
+        <div class="error" id="config-error"></div>
+        <div class="row" style="margin-top:14px">
+          <button class="primary big" type="submit" id="btn-guardar">Guardar configuración</button>
+          <button type="button" class="link" id="btn-cancelar-config">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Login -->
+  <section id="login" class="card hidden">
+    <h1>PJN Novedades</h1>
+    <p class="muted">Ingresá con tu usuario del PJN. La clave no se guarda: se olvida al cerrar la app.</p>
+    <form id="form-login" autocomplete="on">
+      <label for="usuario">Usuario (CUIT / CUIL)</label>
+      <input id="usuario" type="text" name="username" autocomplete="username" required>
+      <label for="password">Clave del PJN</label>
+      <input id="password" type="password" name="password" autocomplete="current-password" required>
+      <div class="error" id="login-error"></div>
+      <button class="primary" id="btn-login" type="submit" style="width:100%;margin-top:6px">Ingresar</button>
+    </form>
+    <div style="margin-top:12px"><button class="link" id="btn-config-desde-login">⚙ Configuración</button></div>
+  </section>
+
+  <!-- Panel -->
+  <section id="panel" class="hidden">
+    <header>
+      <h1>PJN Novedades</h1>
+      <div class="row">
+        <button id="btn-abrir-excel">📊 Abrir Excel</button>
+        <button id="btn-abrir-carpeta" class="hide-sm">📁 Carpeta</button>
+        <button id="btn-config">⚙</button>
+        <span class="muted small" id="usuario-actual"></span>
+        <button class="link" id="btn-logout">Salir</button>
+      </div>
+    </header>
+    <div class="error" id="panel-error"></div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <h3>Buscar novedades</h3>
+          <div class="muted small" id="texto-buscar">Lee los mails del PJN, revisa cada causa con novedades
+            y actualiza el Excel.</div>
+          <div class="muted small" id="contadores"></div>
+        </div>
+        <div class="spacer"></div>
+        <button class="primary big" id="btn-correr">▶ Buscar novedades</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="card-corrida">
+      <div class="row">
+        <div>
+          <div class="estado-titulo" id="c-titulo"></div>
+          <div class="muted" id="c-sub"></div>
+        </div>
+        <div class="spacer"></div>
+        <button class="stop" id="btn-stop">■ STOP</button>
+      </div>
+      <div class="bar"><div id="c-bar"></div></div>
+      <div class="stats">
+        <div class="stat"><b id="s-causa">–</b><span>Causa</span></div>
+        <div class="stat"><b id="s-eta">–</b><span>Tiempo restante</span></div>
+        <div class="stat"><b id="s-pa">0</b><span>Primeros autos</span></div>
+        <div class="stat"><b id="s-se">0</b><span>Sentencias</span></div>
+      </div>
+      <pre id="log"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Alertas</h2>
+      <div class="tabs">
+        <button class="tab on" data-vista="barrido">Último barrido</button>
+        <button class="tab" data-vista="mes">Por mes</button>
+        <select id="sel-mes" class="hidden"></select>
+        <span class="muted small" id="alertas-sub"></span>
+      </div>
+      <div class="cols">
+        <div class="pa">
+          <div class="col-head"><span class="n" id="n-pa">0</span><span>Primeros autos</span></div>
+          <div id="lista-pa"></div>
+        </div>
+        <div class="se">
+          <div class="col-head"><span class="n" id="n-se">0</span><span>Sentencias</span></div>
+          <div id="lista-se"></div>
+        </div>
+      </div>
+      <details class="small muted" style="margin-top:8px">
+        <summary>¿Qué cuenta como primer auto y como sentencia?</summary>
+        <p><b>Primer auto</b>: el despacho que tiene por presentada la demanda y ordena el mandamiento de
+          intimación de pago ("PRIMER AUTO", "1ER AUTO ANTICIPATORIO", "INICIO FISCO", "PRIMER PROVEIDO"…).
+          Se busca sólo en ejecuciones fiscales o tributarias. No cuentan los previos ("PRIMER AUTO - PREVIO
+          ACLARE TIPO SOCIETARIO") ni los que lo citan o anulan ("ESTESE AL AUTO ANTICIPATORIO").</p>
+        <p><b>Sentencia</b>: el despacho del juzgado que la dicta. En ejecución fiscal casi nunca dice
+          SENTENCIA: se dicta declarando EXPEDITA la vía ("SENTENCIA EXPEDITA - S17", "STR", "SEI"…). No
+          cuentan el llamamiento de autos, los pedidos de la parte, las notificaciones ni lo que resuelve la
+          Cámara.</p>
+        <p><b>Último barrido</b> muestra lo que apareció en la última búsqueda. <b>Por mes</b> cuenta por la
+          fecha de la actuación.</p>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>Historial</h2>
+      <table>
+        <thead><tr><th>Inicio</th><th>Estado</th><th class="n hide-sm">Mails</th><th class="n hide-sm">Causas</th>
+          <th class="n">Nuevas</th><th class="n">1° autos</th><th class="n">Sent.</th><th class="n hide-sm">Duración</th></tr></thead>
+        <tbody id="historial"><tr><td colspan="8" class="muted">…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let runId = 0, lineas = 0, estabaActiva = false, timer = null;
+let configurado = false, forzarConfig = false, vista = "barrido", mesElegido = "";
+const CAMPOS = ["GMAIL_USUARIO", "GMAIL_CLAVE_APP", "PJN_USUARIO", "CARPETA_DATOS", "DIAS_ATRAS",
+                "FILTRO_CARATULA", "DESCARGAR_PDFS"];
+
+async function api(ruta, body) {
+  const opts = { headers: { "X-App": "1" } };
+  if (body !== undefined) {
+    opts.method = "POST";
+    opts.headers["Content-Type"] = "application/json";
+    opts.body = JSON.stringify(body);
+  }
+  const r = await fetch(ruta, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+
+function fmtDur(seg) {
+  if (seg == null || !isFinite(seg)) return "–";
+  seg = Math.round(seg);
+  const h = Math.floor(seg / 3600), m = Math.floor(seg % 3600 / 60), s = seg % 60;
+  return h ? `${h}h ${String(m).padStart(2, "0")}m` : m ? `${m}m ${String(s).padStart(2, "0")}s` : `${s}s`;
+}
+function fmtHora(ts) {
+  return new Date(ts).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+function fmtFechaSql(t) {  // "2026-11-01 08:30:00" → "01/11 08:30"
+  if (!t) return "–";
+  const [d, h] = t.split(" "); const [a, m, dd] = d.split("-");
+  return `${dd}/${m}/${a.slice(2)} ${(h || "").slice(0, 5)}`;
+}
+function fmtMes(m) {
+  const [a, mm] = m.split("-");
+  return new Date(+a, +mm - 1, 1).toLocaleString("es-AR", { month: "long", year: "numeric" });
+}
+function esc(t) { return String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+
+function mostrar(seccion) {
+  for (const s of ["config", "login", "panel"]) $(s).classList.toggle("hidden", s !== seccion);
+}
+
+// ---------------------------------------------------------------- Configuración
+async function abrirConfig() {
+  forzarConfig = true;
+  mostrar("config");
+  $("config-error").textContent = $("probar-ok").textContent = $("probar-error").textContent = "";
+  $("btn-cancelar-config").classList.toggle("hidden", !configurado);
+  try {
+    const c = await api("/api/config");
+    for (const k of CAMPOS) {
+      const el = $(k);
+      if (el.type === "checkbox") el.checked = (c[k] || "1") !== "0";
+      else el.value = c[k] || "";
+    }
+    $("clave-guardada").textContent = c._guardados.GMAIL_CLAVE_APP
+      ? "✔ Ya hay una contraseña guardada. Dejalo vacío para conservarla." : "";
+    $("GMAIL_CLAVE_APP").placeholder = c._guardados.GMAIL_CLAVE_APP ? "•••• •••• •••• ••••" : "abcd efgh ijkl mnop";
+    $("carpeta-abs").textContent = "Se guarda en: " + c._carpeta_absoluta;
+  } catch (err) { $("config-error").textContent = err.message; }
+}
+
+function valoresConfig() {
+  const v = {};
+  for (const k of CAMPOS) { const el = $(k); v[k] = el.type === "checkbox" ? (el.checked ? "1" : "0") : el.value.trim(); }
+  return v;
+}
+
+$("btn-probar").onclick = async () => {
+  $("probar-ok").textContent = $("probar-error").textContent = "";
+  $("btn-probar").disabled = true;
+  $("probando").textContent = "Conectando con Gmail…";
+  try {
+    const v = valoresConfig();
+    const r = await api("/api/probar-gmail", { GMAIL_USUARIO: v.GMAIL_USUARIO, GMAIL_CLAVE_APP: v.GMAIL_CLAVE_APP });
+    let msg = `✔ Conexión OK. Encontré ${r.mails} mails del PJN en los últimos ${r.dias} días`
+      + (r.mails ? ` (${r.con_link} con link a la causa).` : ".");
+    if (r.ejemplo) msg += `\nEl más reciente: ${r.ejemplo.expediente} — ${r.ejemplo.caratula}`;
+    if (!r.mails) msg += "\nSi tendrían que llegarte avisos, revisá que lleguen a esta cuenta desde scw-noreply@pjn.gov.ar.";
+    $("probar-ok").textContent = msg;
+  } catch (err) { $("probar-error").textContent = err.message; }
+  finally { $("btn-probar").disabled = false; $("probando").textContent = ""; }
+};
+
+$("form-config").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  $("config-error").textContent = "";
+  $("btn-guardar").disabled = true;
+  try {
+    const r = await api("/api/config", valoresConfig());
+    if (r.faltan.length) { $("config-error").textContent = "Falta completar: " + r.faltan.join(", "); return; }
+    forzarConfig = false;
+    $("GMAIL_CLAVE_APP").value = "";
+    await tick();
+  } catch (err) { $("config-error").textContent = err.message; }
+  finally { $("btn-guardar").disabled = false; }
+});
+$("btn-cancelar-config").onclick = () => { forzarConfig = false; tick(); };
+$("btn-config").onclick = abrirConfig;
+$("btn-config-desde-login").onclick = abrirConfig;
+
+// ---------------------------------------------------------------- Corrida
+function agregarLog(nuevas) {
+  const pre = $("log");
+  const abajo = pre.scrollHeight - pre.scrollTop - pre.clientHeight < 40;
+  pre.insertAdjacentHTML("beforeend", nuevas.map(l => {
+    const cls = l.includes("[ERROR]") ? "error" : l.includes("[WARN ]") ? "warn" : l.includes("[OK   ]") ? "ok" : "";
+    return `<span class="${cls}">${esc(l)}</span>\n`;
+  }).join(""));
+  if (abajo) pre.scrollTop = pre.scrollHeight;
+}
+
+function pintarCorrida(c) {
+  $("card-corrida").classList.toggle("hidden", !c);
+  $("btn-correr").disabled = !!(c && c.activa);
+  if (!c) return;
+  if (c.id !== runId) { runId = c.id; lineas = 0; $("log").textContent = ""; }
+  if (c.desde === lineas && c.lineas.length) { agregarLog(c.lineas); lineas += c.lineas.length; }
+
+  const p = c.progreso || {}, total = p.total || 0, hechas = p.hechas || 0;
+  const r = c.resumen || {};
+  let titulo, sub;
+  if (c.activa) {
+    titulo = c.deteniendo ? "Deteniendo…" : "Buscando novedades";
+    sub = c.deteniendo ? "Termina la causa en curso y para; el resto queda para la próxima"
+        : total ? `${p.expediente || ""}` : "Leyendo mails e ingresando al PJN…";
+  } else {
+    const ok = c.rc === 0 && r.errores === 0;
+    titulo = r.detenido ? "Detenido" : ok ? "Terminó bien" : "Terminó con errores";
+    sub = `${fmtHora(c.inicio * 1000)} · ${fmtDur(c.fin - c.inicio)}`
+      + (r.excel_ok === false ? " · ⚠ el Excel no se pudo actualizar (¿está abierto?)" : "");
+  }
+  $("c-titulo").textContent = titulo;
+  $("c-sub").textContent = sub;
+  $("btn-stop").classList.toggle("hidden", !c.activa);
+  $("btn-stop").disabled = c.deteniendo;
+  $("c-bar").style.width = total ? `${(hechas / total) * 100}%` : (c.activa ? "2%" : "100%");
+  $("s-causa").textContent = total ? `${Math.min(p.actual, total)} / ${total}` : (c.activa ? "–" : "0");
+  $("s-eta").textContent = c.activa ? fmtDur(c.eta) : "–";
+  $("s-pa").textContent = c.activa ? (p.primeros_autos ?? 0) : (r.primeros_autos ?? p.primeros_autos ?? 0);
+  $("s-se").textContent = c.activa ? (p.sentencias ?? 0) : (r.sentencias ?? p.sentencias ?? 0);
+}
+
+async function tick() {
+  clearTimeout(timer);
+  let e;
+  try { e = await api(`/api/estado?run=${runId}&desde=${lineas}`); }
+  catch { timer = setTimeout(tick, 3000); return; }
+
+  configurado = e.configurado;
+  if (!e.configurado || forzarConfig) {
+    if ($("config").classList.contains("hidden")) await abrirConfig();
+    timer = setTimeout(tick, 5000);
+    return;
+  }
+  if (!e.logueado) {
+    mostrar("login");
+    if (!$("usuario").value) $("usuario").value = e.usuario_sugerido;
+    timer = setTimeout(tick, 5000);
+    return;
+  }
+  if ($("panel").classList.contains("hidden")) { mostrar("panel"); cargarAlertas(); cargarHistorial(); }
+  $("usuario-actual").textContent = e.usuario;
+  pintarCorrida(e.corrida);
+
+  const activa = !!(e.corrida && e.corrida.activa);
+  if (estabaActiva && !activa) { vista = "barrido"; pintarTabs(); cargarAlertas(); cargarHistorial(); }
+  if (!estabaActiva && activa) cargarHistorial();
+  estabaActiva = activa;
+  timer = setTimeout(tick, activa ? 1000 : 4000);
+}
+
+// ---------------------------------------------------------------- Alertas
+function item(a) {
+  const links = [
+    a.link_archivo ? `<a href="${esc(a.link_archivo)}" target="_blank" rel="noopener">Ver en el PJN</a>` : "",
+    a.tiene_pdf ? `<a href="/pdf/${encodeURIComponent(a.clave)}" target="_blank">PDF descargado</a>` : "",
+    a.link_causa ? `<a href="${esc(a.link_causa)}" target="_blank" rel="noopener">Causa</a>` : "",
+  ].filter(Boolean).join("");
+  return `<div class="item"><div><span class="exp">${esc(a.expediente)}</span>
+    <span class="muted small"> · ${esc(a.fecha)}</span></div>
+    <div class="car">${esc(a.caratula)}</div>
+    <div class="det">${esc(a.detalle)}</div>
+    <div class="links">${links}</div></div>`;
+}
+function pintarLista(id, lista, vacio) {
+  $(id).innerHTML = lista.length ? lista.map(item).join("") : `<div class="vacio">${vacio}</div>`;
+}
+function pintarTabs() {
+  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.vista === vista));
+  $("sel-mes").classList.toggle("hidden", vista !== "mes");
+}
+
+let ultimasAlertas = null;
+async function cargarAlertas() {
+  try {
+    const a = await api("/api/alertas" + (mesElegido ? `?mes=${mesElegido}` : ""));
+    ultimasAlertas = a;
+    mesElegido = a.mes;
+    $("sel-mes").innerHTML = a.meses.map(m => `<option value="${m}" ${m === a.mes ? "selected" : ""}>${fmtMes(m)}</option>`).join("");
+    const c = a.contadores;
+    $("contadores").textContent = `${c.causas} causas · ${c.actuaciones} actuaciones registradas`
+      + (a.ultima ? ` · último barrido ${fmtFechaSql(a.ultima.inicio)}` : " · todavía no hiciste ningún barrido");
+    pintarAlertas();
+  } catch (err) { $("panel-error").textContent = "No se pudieron leer las alertas: " + err.message; }
+}
+function pintarAlertas() {
+  const a = ultimasAlertas;
+  if (!a) return;
+  const datos = vista === "barrido" ? a.barrido : a.del_mes;
+  const pa = (datos && datos.primer_auto) || [], se = (datos && datos.sentencia) || [];
+  $("n-pa").textContent = pa.length; $("n-se").textContent = se.length;
+  const vacio = vista === "barrido"
+    ? (a.ultima ? "Ninguno en el último barrido" : "Todavía no hay barridos") : "Ninguno este mes";
+  pintarLista("lista-pa", pa, vacio);
+  pintarLista("lista-se", se, vacio.replace("Ninguno", "Ninguna"));
+  $("alertas-sub").textContent = vista === "barrido"
+    ? (a.ultima ? `${fmtFechaSql(a.ultima.inicio)} · ${a.ultima.estado}` : "")
+    : "por fecha de la actuación";
+}
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => { vista = b.dataset.vista; pintarTabs(); pintarAlertas(); });
+$("sel-mes").onchange = (ev) => { mesElegido = ev.target.value; cargarAlertas(); };
+
+async function cargarHistorial() {
+  try {
+    const h = await api("/api/historial");
+    $("historial").innerHTML = h.length ? h.map(j => `<tr>
+      <td>${fmtFechaSql(j.inicio)}</td>
+      <td><span class="chip ${esc((j.estado || "").split(" ").pop())}">${esc(j.estado)}</span></td>
+      <td class="n hide-sm">${j.mails ?? ""}</td><td class="n hide-sm">${j.causas ?? ""}</td>
+      <td class="n">${j.nuevas ?? ""}</td><td class="n">${j.primeros_autos ?? ""}</td>
+      <td class="n">${j.sentencias ?? ""}</td><td class="n hide-sm">${esc(j.duracion)}</td></tr>`).join("")
+      : `<tr><td colspan="8" class="muted">Sin barridos todavía</td></tr>`;
+  } catch (err) {
+    $("historial").innerHTML = `<tr><td colspan="8" class="muted">No se pudo leer: ${esc(err.message)}</td></tr>`;
+  }
+}
+
+// ---------------------------------------------------------------- Acciones
+$("form-login").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  $("login-error").textContent = "";
+  $("btn-login").disabled = true;
+  $("btn-login").textContent = "Verificando con el PJN…";
+  try {
+    await api("/api/login", { usuario: $("usuario").value, password: $("password").value });
+    $("password").value = "";
+    await tick();
+  } catch (err) {
+    $("login-error").textContent = err.message;
+  } finally {
+    $("btn-login").disabled = false;
+    $("btn-login").textContent = "Ingresar";
+  }
+});
+
+$("btn-correr").onclick = async () => {
+  $("panel-error").textContent = "";
+  try { await api("/api/correr", {}); tick(); }
+  catch (err) { $("panel-error").textContent = err.message; }
+};
+$("btn-stop").onclick = async () => { await api("/api/detener", {}); tick(); };
+async function abrir(que) {
+  $("panel-error").textContent = "";
+  try { await api("/api/abrir", { que }); }
+  catch (err) { $("panel-error").textContent = err.message; }
+}
+$("btn-abrir-excel").onclick = () => abrir("excel");
+$("btn-abrir-carpeta").onclick = () => abrir("carpeta");
+$("btn-logout").onclick = async () => {
+  try { await api("/api/logout", {}); runId = 0; lineas = 0; tick(); }
+  catch (err) { $("panel-error").textContent = err.message; }
+};
+
+tick();
+</script>
+</body>
+</html>

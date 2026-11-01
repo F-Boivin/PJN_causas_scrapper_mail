@@ -1,0 +1,26 @@
+# --- Secretos: NUNCA al repo ---
+.env
+.env.*
+!.env.example
+*.tmp
+credentials*.json
+client_secret*.json
+token*.json
+
+# --- Datos de causas (carátulas, CUIT, nombres): NUNCA al repo ---
+datos/
+*.db
+*.db-wal
+*.db-shm
+*.xlsx
+*.xls
+*.csv
+*.pdf
+
+# --- Estado local de la app ---
+.detener
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.log
