@@ -222,3 +222,7 @@ Detalles de diseño:
 - **Paginación**: si la causa ya tiene actuaciones registradas, avanza páginas (15 filas cada una) hasta una sin nada nuevo, con tope de 5. Nunca registra actuaciones anteriores a la más vieja ya registrada, así no vuelca el histórico de causas viejas.
 - **STOP**: la app crea el archivo `.detener` y `scraper.py` lo mira entre causas, así ninguna queda a medias.
 - **Sin la app**: `PJN_PASSWORD=... python scraper.py` hace un barrido por consola, con la configuración del `.env`.
+
+## Licencia
+
+[MIT](LICENSE): podés usarlo, modificarlo y compartirlo, incluso con fines comerciales, siempre que conserves el aviso de copyright y la licencia. Se entrega sin garantía de ningún tipo.
