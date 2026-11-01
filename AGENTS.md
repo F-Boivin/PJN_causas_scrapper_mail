@@ -89,7 +89,8 @@ sólo para Windows.
 | "Usuario o contraseña del PJN incorrectos" | Que pruebe a mano en https://portalpjn.pjn.gov.ar |
 | Timeouts del PJN | El PJN bloquea IPs de nube/datacenter: tiene que correr desde una conexión residencial u oficina en Argentina. A veces es lentitud del PJN: reintentar; lo pendiente se retoma solo. |
 | "La app ya está abierta" | Ya hay una instancia en el puerto 8770: usar esa pestaña, o cerrar su ventana negra. |
-| El Excel no se actualiza | Está abierto en Excel: cerrarlo y volver a buscar novedades. |
+| El Excel no se actualiza | Está abierto en Excel: cerrarlo y tocar **📊 Abrir Excel**, que agrega lo pendiente. |
+| Se perdió algo escrito en el Excel | Recuperarlo de la copia más reciente en `datos/respaldos`. Las notas de la persona no están en la base. |
 
 ## Para trabajar en el código
 
@@ -97,7 +98,10 @@ sólo para Windows.
 - `clasificador.py` copia reglas calibradas en un relevamiento de sentencias
   de ejecuciones fiscales. `tests/casos_sentencia.json` es su corpus de
   regresión. No cambies un patrón sin agregar el caso real que lo justifica.
-- La base SQLite es la fuente de verdad; el Excel se regenera entero.
+- La base SQLite es la fuente de verdad de la app, pero el Excel **no se
+  regenera**: la persona escribe en él. `excel.py` agrega filas por la columna
+  oculta `ID` y sólo actualiza las columnas de la app (ver "El Excel" en el
+  README). No lo cambies por algo que reemplace el archivo entero.
 - El servidor escucha sólo en 127.0.0.1, con chequeo de `Host` y del header
   `X-App` contra sitios ajenos. No lo abras a la red.
 - Nada de datos reales en tests ni en commits: carátulas, CUIT y links de

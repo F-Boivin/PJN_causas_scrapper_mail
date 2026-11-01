@@ -16,7 +16,7 @@ Funciona con los avisos por mail que ya te manda el PJN: no hay que cargar las c
 - En ejecuciones fiscales te muestra **alertas**:
   - **Primeros autos** y **sentencias** que aparecieron **en el último barrido**.
   - **Primeros autos** y **sentencias del mes**, con un selector para ver meses anteriores.
-- Arma un **Excel** con hojas de Alertas, Por mes, Actuaciones, Causas, Mails del PJN y Corridas.
+- Arma un **Excel donde podés anotar**: en cada barrido agrega lo nuevo y respeta lo que escribiste (ver [El Excel](#el-excel)).
 
 Todo corre **en tu PC**. No hay servidores, nubes ni cuentas nuevas, y **no usa inteligencia artificial** (ver [Sin inteligencia artificial](#sin-inteligencia-artificial)).
 
@@ -37,7 +37,7 @@ flowchart LR
 3. **PJN**: con un navegador invisible entra al sistema de consulta de causas (SCW) con tu usuario, abre cada causa desde el link del mail y lee la tabla de actuaciones. Si hace falta, pasa de página hasta llegar a lo que ya tenía registrado.
 4. **Registro**: guarda sólo las actuaciones **nuevas** y **con documento**. Las que no traen archivo, como "A DESPACHO" o "EXPEDIENTE EN LETRA", son ruido procesal y se descartan. Nunca duplica: si corrés dos veces, la segunda no agrega nada.
 5. **Alertas**: clasifica cada actuación nueva (ver [Alertas](#alertas)).
-6. **Excel**: lo regenera completo al final.
+6. **Excel**: agrega al final las filas nuevas, sin tocar lo que escribiste.
 
 Si una causa falla (el PJN no respondió, por ejemplo), sus avisos quedan pendientes y se reintentan en el próximo barrido.
 
@@ -156,22 +156,63 @@ Las reglas salen de un relevamiento de cientos de miles de actuaciones reales de
 
 La primera vez que la app ve una causa, registra su primera página de actuaciones (las 15 más recientes). Las que son bastante anteriores al aviso del mail se toman como **historia de la causa**: quedan en el Excel y cuentan en su mes, pero no aparecen como alerta del barrido.
 
+## El Excel
+
+El Excel es **tuyo**: podés anotar, pintar, ordenar y agregar columnas u hojas. En cada barrido la app sólo **agrega al final** lo nuevo y mantiene al día sus propias columnas. Lo que escribiste no lo toca.
+
+### Las hojas
+
+| Hoja | Qué tiene | ¿Podés escribir? |
+|---|---|---|
+| **Alertas** | Los primeros autos y las sentencias, en color | Sí |
+| **Actuaciones** | Todas las actuaciones registradas, con el link al documento y al PDF | Sí |
+| **Causas** | Una fila por causa: situación, última actuación, fecha del primer auto y de la sentencia | Sí |
+| **Por mes** | Cuántos primeros autos, sentencias y actuaciones hubo cada mes | No: la reescribe la app |
+| **Mails del PJN** | Los avisos que leyó de Gmail | No: la reescribe la app |
+| **Corridas** | Cada barrido: cuándo fue, qué encontró, si hubo errores | No: la reescribe la app |
+
+### Qué podés hacer en Alertas, Actuaciones y Causas
+
+- **Anotar** en la columna **Observaciones**, que viene vacía, o en columnas que agregues vos (por ejemplo "Responsable" o "Estado").
+- **Pintar** celdas o filas, y cambiar letra y formatos.
+- **Ordenar y filtrar** como quieras. La app reconoce cada fila por un código que guarda en una columna oculta (**ID**), así que el orden no la confunde.
+- **Insertar columnas** donde quieras, también con fórmulas.
+- **Dar formato de tabla** (*Insertar → Tabla*): la tabla se agranda sola con las filas nuevas.
+- **Agregar notas** a las celdas. Los comentarios de Excel 365 (los que tienen respuestas) se guardan como notas, con el texto y el autor.
+- **Agregar hojas** propias, y **filas a mano**: quedan como están.
+
+### Qué hace la app en cada barrido
+
+- **Agrega al final** las filas nuevas. Para ver lo más reciente arriba, ordená por *Fecha* con el filtro.
+- **Mantiene al día sus columnas**, por ejemplo "Situación" y "Última actuación" en *Causas*. Si escribís en una columna de la app, se pisa: anotá en *Observaciones* o en una columna tuya.
+- **Nunca borra** filas ni columnas. Si borrás una fila o una columna de la app, vuelve a aparecer en el próximo barrido. Para no verla, ocultala o filtrala.
+- Antes de cada cambio, **guarda una copia de respaldo** en `datos/respaldos`, y conserva las últimas 10.
+
+### Cuidados
+
+- **No borres la columna ID**, que está oculta. Sin ella, la app no puede reconocer las filas: deja esa hoja como estaba, con el nombre "… (anterior)", y arma una nueva.
+- **No cambies los títulos** de las columnas de la app. Si cambiás "Detalle" por "Descripción", la app vuelve a crear "Detalle" al final.
+- **No pongas gráficos ni imágenes** en este archivo: la app no los conserva al guardarlo. Hacelos en otro Excel.
+- **Si está abierto durante un barrido**, Windows no deja actualizarlo. No se pierde nada: cerralo y tocá **📊 Abrir Excel**, o esperá al próximo barrido.
+- **Si algo se perdió**, abrí la copia más reciente de `datos/respaldos` y guardala en lugar de `Novedades PJN.xlsx`.
+- **No lo edites en dos lugares a la vez**, por ejemplo en la PC y en el celular con OneDrive: pueden aparecer copias "en conflicto".
+- **¿Google Sheets?** Elegí como carpeta de datos una carpeta de **Google Drive para escritorio** y abrí el Excel desde Drive **sin convertirlo** a hoja de cálculo de Google. Si lo convertís, tus notas quedan en la copia convertida y la app sigue escribiendo en el `.xlsx`.
+
 ## Tus datos
 
 Todo queda en la **carpeta de datos**:
 
 ```
 datos/
-├── Novedades PJN.xlsx      el Excel (se regenera en cada barrido)
+├── Novedades PJN.xlsx      el Excel (tuyo: podés anotar)
+├── respaldos/              copias del Excel antes de cada cambio (las últimas 10)
 ├── PDFs/
 │   └── CAF 99001-2026/
 │       └── 2026-10-28 FIRMA DESPACHO - SENTENCIA EXPEDITA - S17.pdf
 └── pjn_novedades.db        la base (no la borres: es la memoria de la app)
 ```
 
-- **No escribas en el Excel**: se reemplaza en cada barrido. Para anotar, copiá la hoja a otro archivo.
-- Si el Excel está abierto durante un barrido, Windows no deja actualizarlo. No se pierde nada: cerralo y tocá **Buscar novedades** de nuevo.
-- **¿Google Sheets?** Elegí como carpeta de datos una carpeta de **Google Drive para escritorio** o de **OneDrive**: el Excel y los PDFs quedan en la nube, y Google Sheets abre el Excel directo.
+Si elegís una carpeta de **Google Drive para escritorio** o de **OneDrive**, el Excel y los PDFs quedan también en la nube.
 
 ## Seguridad y privacidad
 
@@ -193,6 +234,8 @@ datos/
 | "Falta instalar el navegador del scraper" | Corré `instalar.bat` de nuevo. |
 | "Mail sin link a la causa" | Ese aviso no traía el link al SCW. Abrí la causa a mano desde el PJN. |
 | Tope de 5 páginas en una causa | Entre dos barridos se juntaron más de 75 actuaciones. Revisá la causa a mano por si falta algo más viejo. |
+| "El Excel no se pudo actualizar" | Estaba abierto en Excel. Cerralo y tocá **📊 Abrir Excel**: se agrega lo pendiente. |
+| Falta algo que escribí en el Excel | Recuperalo de la copia más reciente en `datos/respaldos`. |
 
 ## Instalación con ayuda de un asistente de IA
 
@@ -250,7 +293,7 @@ gmail_pjn.py      IMAP con contraseña de aplicación; parseo de los avisos del 
 pjn.py            motor del SCW con Playwright: login, actuaciones, paginación, descargas
 clasificador.py   reglas de primer auto y sentencia
 almacen.py        base SQLite: mails, causas, actuaciones, corridas, alertas
-excel.py          exportación a Excel
+excel.py          el Excel: agrega filas por ID sin pisar lo que escribe la persona
 config.py         lectura y escritura del .env (la usa el formulario)
 tests/            tests sin red ni login (uno abre un Chromium local)
 ```
@@ -266,6 +309,7 @@ Detalles de diseño:
 - **Dedup**: cada actuación tiene una clave md5 de (expediente, fecha, tipo, detalle, fojas). Re-correr no duplica.
 - **Paginación**: si la causa ya tiene actuaciones registradas, avanza páginas (15 filas cada una) hasta una sin nada nuevo, con tope de 5. Nunca registra actuaciones anteriores a la más vieja ya registrada, así no vuelca el histórico de causas viejas.
 - **STOP**: la app crea el archivo `.detener` y `scraper.py` lo mira entre causas, así ninguna queda a medias.
+- **Excel**: la base es la fuente de verdad de la app; el Excel no se regenera. En *Alertas*, *Actuaciones* y *Causas*, `excel.py` ubica sus columnas por el título y las filas por la columna oculta `ID`: agrega las que faltan al final y actualiza sólo las celdas de la app que cambiaron. *Por mes*, *Mails del PJN* y *Corridas* se reescriben. Si no cambió nada, no guarda. Antes de reemplazar el archivo deja una copia en `respaldos/`. Lo que escribe la persona vive sólo en el Excel (y en los respaldos), no en la base.
 - **Sin la app**: `PJN_PASSWORD=... python scraper.py` hace un barrido por consola, con la configuración del `.env`.
 
 ## Licencia

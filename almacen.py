@@ -1,8 +1,9 @@
 """Los datos de la app: una base SQLite en la carpeta de datos.
 
-Es la fuente de verdad. El Excel se regenera desde acá al final de cada
-corrida (`excel.py`), así que si el Excel está abierto o se borra no se pierde
-nada: se vuelve a generar.
+Es la fuente de verdad de la app. Al final de cada corrida `excel.py` pone al
+día el Excel desde acá, sin pisar lo que escribió la persona: si el Excel está
+abierto, lo pendiente entra la próxima vez, y si se borra, se vuelve a armar
+(sin las notas de la persona, que están sólo en el Excel y sus respaldos).
 
 Tablas:
     novedades    un registro por mail del PJN leído (auditoría y cola)

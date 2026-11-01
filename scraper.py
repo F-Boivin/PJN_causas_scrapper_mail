@@ -290,7 +290,7 @@ def main() -> int:
         try:
             ruta = excel.exportar(con, config.ruta_excel(cfg))
             log(f"Excel actualizado: {ruta}", "ok")
-        except excel.ExcelAbierto as e:
+        except excel.ErrorExcel as e:
             excel_ok = False
             totales["warnings"] += 1
             log(str(e), "warn")

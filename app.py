@@ -389,11 +389,23 @@ class Handler(BaseHTTPRequestHandler):
                 with almacen.abrir(config.ruta_db(cfg)) as con:
                     excel.exportar(con, config.ruta_excel(cfg))
                 self._json({"ok": True})
-            except excel.ExcelAbierto as e:
+            except excel.ErrorExcel as e:
                 self._json({"error": str(e)}, 409)
         elif ruta == "/api/abrir":
             destino = {"excel": config.ruta_excel(cfg),
                        "carpeta": config.carpeta_datos(cfg)}.get(datos.get("que"))
+            with lock:
+                en_curso = bool(estado["corrida"] and estado["corrida"]["activa"])
+            if datos.get("que") == "excel" and not en_curso and config.ruta_db(cfg).exists():
+                # Si un barrido no pudo escribirlo (estaba abierto), lo pendiente se agrega ahora.
+                try:
+                    with almacen.abrir(config.ruta_db(cfg)) as con:
+                        excel.exportar(con, destino)
+                except excel.ExcelIlegible as e:
+                    self._json({"error": str(e)}, 409)
+                    return
+                except excel.ExcelAbierto:
+                    pass  # ya está abierto: se muestra como está
             if not destino or not destino.exists():
                 self._json({"error": "Todavía no existe: corré un barrido primero"}, 404)
                 return

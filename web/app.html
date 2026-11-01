@@ -409,7 +409,7 @@ function pintarCorrida(c) {
     const ok = c.rc === 0 && r.errores === 0;
     titulo = r.detenido ? "Detenido" : ok ? "Terminó bien" : "Terminó con errores";
     sub = `${fmtHora(c.inicio * 1000)} · ${fmtDur(c.fin - c.inicio)}`
-      + (r.excel_ok === false ? " · ⚠ el Excel no se pudo actualizar (¿está abierto?)" : "");
+      + (r.excel_ok === false ? " · ⚠ el Excel no se pudo actualizar (¿está abierto? Cerralo y tocá 📊 Abrir Excel)" : "");
   }
   $("c-titulo").textContent = titulo;
   $("c-sub").textContent = sub;
