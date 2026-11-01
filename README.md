@@ -54,13 +54,13 @@ Si una causa falla (el PJN no respondió, por ejemplo), sus avisos quedan pendie
 
 ### Si los avisos te llegan a otra casilla
 
-La app sólo lee Gmail. Si el PJN te manda los avisos a otra casilla (la del estudio, Outlook, Hotmail…):
+La app está diseñada para que los avisos del PJN te lleguen **directo a Gmail**.
 
-- **Lo más seguro** es que el PJN te los mande directo a tu Gmail.
-- **Reenvío automático** desde la otra casilla: en general funciona, porque conserva el remitente original. En Outlook, la regla tiene que ser **"Redirigir a"**, no "Reenviar a".
-- **Reenvío a mano** (botón *Reenviar*), o una regla de "Reenviar a": **no funciona**. El mail llega a Gmail con tu dirección como remitente, y la app no lo encuentra.
+Si te llegan a otra casilla (por ejemplo, una institucional como `@arca.gob.ar`) y de ahí se reenvían a Gmail, ya sea con una regla automática o a mano, **la app no funciona tal como está diseñada**. Al reenviarse, en general el remitente deja de ser `scw-noreply@pjn.gov.ar`, y la app no encuentra los avisos.
 
-Para comprobarlo, abrí en Gmail uno de los avisos y mirá el remitente (*De:*): tiene que decir `scw-noreply@pjn.gov.ar`. También podés tocar **Probar conexión con Gmail**: si encuentra 0 avisos aunque te hayan llegado en el último mes, el remitente no es ése.
+Se puede adaptar para que busque los avisos por el asunto ("Novedad en expediente…") en lugar del remitente, pero eso **implica cambiar el código**.
+
+Para saber si es tu caso, abrí en Gmail uno de los avisos y mirá el remitente (*De:*): tiene que decir `scw-noreply@pjn.gov.ar`.
 
 ## Sin inteligencia artificial
 
