@@ -48,10 +48,17 @@ Usá PowerShell. Todos los comandos, desde esta carpeta.
    `OK`; un test abre un Chromium local, sin red.
 5. **Abrir la app**: `python app.py`. Abre el navegador en
    `http://127.0.0.1:8770`. Lanzala en segundo plano, porque queda corriendo.
-   Explicá que la ventana negra **es** la app y que para el uso diario está
-   `iniciar.bat`. Si lo pide, `instalar.bat` crea un acceso directo en el
-   Escritorio.
-6. **Configuración**: el formulario se abre solo la primera vez. Guiá a la
+   Explicá que la ventana negra **es** la app.
+6. **Acceso directo en el Escritorio**: crealo siempre, sin preguntar. Es el
+   mismo que ofrece `instalar.bat`. En PowerShell, desde esta carpeta:
+
+   ```powershell
+   $d = [Environment]::GetFolderPath('Desktop'); $s = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d 'PJN Novedades.lnk')); $s.TargetPath = (Resolve-Path .\iniciar.bat).Path; $s.WorkingDirectory = (Get-Location).Path; $s.Save()
+   ```
+
+   Contale que de ahora en más abre la app con el ícono **PJN Novedades** del
+   Escritorio, y que si mueve la carpeta de la app hay que volver a crearlo.
+7. **Configuración**: el formulario se abre solo la primera vez. Guiá a la
    persona campo por campo:
    - **Gmail**: la dirección donde le llegan los avisos de
      `scw-noreply@pjn.gov.ar`.
@@ -63,7 +70,7 @@ Usá PowerShell. Todos los comandos, desde esta carpeta.
    - **Opciones**: los valores por defecto sirven. Si usa Google Drive para
      escritorio u OneDrive, puede elegir una carpeta sincronizada como
      carpeta de datos, así tiene el Excel en la nube.
-7. **Primer barrido**: que ingrese su clave del PJN en la app y toque
+8. **Primer barrido**: que ingrese su clave del PJN en la app y toque
    **▶ Buscar novedades**. Si quiere traer más historia la primera vez, puede
    subir "Días hacia atrás" (hasta 90) en Configuración.
 

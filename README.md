@@ -195,8 +195,8 @@ Reglas:
   ni la del PJN). Las cargo yo en el formulario de la app, que genera el archivo .env.
 - No edites el .env a mano ni lo subas a ningún lado.
 
-Objetivo: dejar la app abierta en el navegador, con la configuración guardada y la
-conexión con Gmail probada.
+Objetivo: dejar la app abierta en el navegador, con la configuración guardada, la
+conexión con Gmail probada y un acceso directo "PJN Novedades" en el Escritorio.
 ```
 
 El archivo [`AGENTS.md`](AGENTS.md) le da al asistente el paso a paso, los problemas típicos y estas mismas reglas, aunque no pegues el mensaje. Codex lo lee directo; Claude Code y Gemini CLI, a través de `CLAUDE.md` y `GEMINI.md`.
