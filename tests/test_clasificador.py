@@ -104,6 +104,14 @@ class TestAlerta(unittest.TestCase):
         self.assertEqual(alerta(self.act("FIRMA DESPACHO", "SENTENCIA EXPEDITA - S17"),
                                 "CAF 1/2026", EJECUCION), SENTENCIA)
 
+    def test_sentencia_no_en_otro_proceso(self):
+        self.assertEqual(alerta(self.act("FIRMA DESPACHO", "SENTENCIA DEFINITIVA"), "CIV 1/2026",
+                                "PEREZ c/ GOMEZ s/DAÑOS Y PERJUICIOS"), "")
+
+    def test_sentencia_con_caratula_vacia(self):
+        self.assertEqual(alerta(self.act("FIRMA DESPACHO", "SENTENCIA EXPEDITA - S17"),
+                                "CAF 1/2026", ""), SENTENCIA)
+
     def test_sentencia_str_en_css(self):
         self.assertEqual(alerta(self.act("FIRMA DESPACHO", "STR ARCA"), "CSS 5/2025", EJECUCION),
                          SENTENCIA)

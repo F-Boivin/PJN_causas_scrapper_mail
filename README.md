@@ -111,11 +111,13 @@ Una vez por día o por semana alcanza. Si no la abrís por más de 7 días, sub�
 
 ## Alertas
 
+Las alertas son sólo para **ejecuciones fiscales o tributarias**, según la carátula. Las actuaciones de las demás causas igual quedan en el Excel, sin alerta.
+
 ### Primer auto
 
 Es el despacho que tiene por presentada la demanda y ordena el mandamiento de intimación de pago. Cada secretaría lo rotula distinto: "PRIMER AUTO", "1ER AUTO ANTICIPATORIO FISCO", "INICIO FISCO SIN BONO", "PRIMER PROVEIDO ARCA", "\*AUTO\* - DIGITALES - ARCA - INICIAL EJECUCION"…
 
-- Se busca sólo en **ejecuciones fiscales o tributarias** y en actuaciones del tipo *FIRMA DESPACHO*.
+- Se busca sólo en actuaciones del tipo *FIRMA DESPACHO*.
 - **No** cuentan los previos ("PRIMER AUTO - PREVIO ACLARE TIPO SOCIETARIO") ni los que lo citan, lo anulan o lo revocan ("ESTESE AL AUTO ANTICIPATORIO", "DEJESE SIN EFECTO EL PRIMER AUTO").
 
 ### Sentencia

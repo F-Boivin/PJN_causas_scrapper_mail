@@ -268,16 +268,16 @@ NOMBRES = {PRIMER_AUTO: "Primer auto", SENTENCIA: "Sentencia"}
 def alerta(act: dict, expediente: str, caratula: str) -> str:
     """PRIMER_AUTO, SENTENCIA o "" para una actuación recién registrada.
 
-    Las filas en negrita son de la alzada (Cámara, Corte): lo que resuelve la
-    alzada no es la sentencia de la causa, y no alertan. Una carátula vacía
-    (no se pudo leer) no descarta el primer auto.
+    Sólo alertan las ejecuciones fiscales o tributarias: las reglas están
+    calibradas sobre ellas. Una carátula vacía (no se pudo leer) no descarta
+    la alerta. Las filas en negrita son de la alzada (Cámara, Corte): lo que
+    resuelve la alzada no es la sentencia de la causa, y no alertan.
     """
-    if act.get("negrita"):
+    if act.get("negrita") or (caratula and not es_ejecucion(caratula)):
         return ""
     tipo, detalle = act.get("tipo", ""), act.get("detalle", "")
     if clasificar_sentencia(tipo, detalle, sigla_fuero(expediente)) == "sentencia":
         return SENTENCIA
-    if (norm(tipo) == TIPO_DESPACHO and es_primer_auto(detalle)
-            and (not caratula or es_ejecucion(caratula))):
+    if norm(tipo) == TIPO_DESPACHO and es_primer_auto(detalle):
         return PRIMER_AUTO
     return ""
