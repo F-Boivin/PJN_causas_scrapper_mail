@@ -41,6 +41,27 @@ flowchart LR
 
 Si una causa falla (el PJN no respondió, por ejemplo), sus avisos quedan pendientes y se reintentan en el próximo barrido.
 
+## Qué lee de tu Gmail
+
+- **Remitente**: sólo mails que vienen de **`scw-noreply@pjn.gov.ar`**, la casilla desde la que el PJN manda los avisos de novedades.
+- **Fecha**: sólo los que llegaron a tu Gmail en los últimos días: 7 por defecto, hasta 90, con la opción "Días hacia atrás". El botón **Probar conexión con Gmail** mira los últimos 30.
+- **Dónde busca**: en **Todos** (todos los mensajes). Encuentra los avisos aunque estén archivados, tengan etiquetas o ya los hayas leído.
+- **Dónde no busca**: en **Spam** ni en la **Papelera**. Si algún aviso te cae en Spam, marcalo como "No es spam".
+- **Qué descarga**: sólo esos mails, y sólo los que no procesó en barridos anteriores. De cada uno saca el expediente, la carátula, la fecha de la novedad y el link a la causa.
+- **Qué modifica**: **nada**. Abre el correo en modo sólo lectura: no marca como leído, no mueve, no etiqueta, no borra y no manda mails.
+
+> **El remitente es condición necesaria.** Si el aviso no llega a tu Gmail con remitente `scw-noreply@pjn.gov.ar`, la app no lo ve.
+
+### Si los avisos te llegan a otra casilla
+
+La app sólo lee Gmail. Si el PJN te manda los avisos a otra casilla (la del estudio, Outlook, Hotmail…):
+
+- **Lo más seguro** es que el PJN te los mande directo a tu Gmail.
+- **Reenvío automático** desde la otra casilla: en general funciona, porque conserva el remitente original. En Outlook, la regla tiene que ser **"Redirigir a"**, no "Reenviar a".
+- **Reenvío a mano** (botón *Reenviar*), o una regla de "Reenviar a": **no funciona**. El mail llega a Gmail con tu dirección como remitente, y la app no lo encuentra.
+
+Para comprobarlo, abrí en Gmail uno de los avisos y mirá el remitente (*De:*): tiene que decir `scw-noreply@pjn.gov.ar`. También podés tocar **Probar conexión con Gmail**: si encuentra 0 avisos aunque te hayan llegado en el último mes, el remitente no es ése.
+
 ## Sin inteligencia artificial
 
 - La app es **Python y HTML puro**. No usa ChatGPT, Claude, Gemini ni ningún otro modelo de lenguaje (LLM): ni para leer los mails, ni para revisar las causas, ni para decidir qué es un primer auto o una sentencia.
@@ -55,7 +76,7 @@ Si una causa falla (el PJN no respondió, por ejemplo), sus avisos quedan pendie
 ## Qué necesitás
 
 - Una PC con **Windows 10 u 11**. En Mac o Linux debería andar, pero **no está probado**; ver [Instalación en Mac o Linux](#instalación-en-mac-o-linux).
-- Una cuenta de **Gmail** donde te lleguen los avisos del PJN, con la **verificación en 2 pasos** activada.
+- Una cuenta de **Gmail** donde te lleguen los avisos del PJN con remitente `scw-noreply@pjn.gov.ar` (ver [Qué lee de tu Gmail](#qué-lee-de-tu-gmail)), con la **verificación en 2 pasos** activada.
 - Tu **usuario y clave del PJN**.
 - Internet desde una conexión **de Argentina**: casa u oficina. El PJN bloquea conexiones desde servidores en la nube.
 
@@ -73,7 +94,7 @@ La primera vez, la app muestra un formulario. **No hay que editar ningún archiv
 
 ### 1 · Gmail y la contraseña de aplicación
 
-La app no usa tu clave de Gmail. Usa una **contraseña de aplicación**: una clave aparte, de 16 letras, que sirve sólo para leer el correo y que podés revocar cuando quieras.
+La app no usa tu clave de Gmail. Usa una **contraseña de aplicación**: una clave aparte, de 16 letras, que podés revocar cuando quieras sin cambiar tu clave de Gmail.
 
 1. Activá la **verificación en 2 pasos** de tu cuenta de Google, si no la tenés: [myaccount.google.com/signinoptions/two-step-verification](https://myaccount.google.com/signinoptions/two-step-verification).
 2. Entrá a [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
@@ -156,8 +177,8 @@ datos/
 
 - **Tu usuario del PJN** (CUIT/CUIL) queda guardado en el archivo `.env`, así aparece ya cargado cada vez que entrás.
 - **La clave del PJN no se guarda en ningún lado.** La escribís cada vez que abrís la app y se olvida al cerrarla.
-- **La contraseña de aplicación de Gmail** se guarda en el archivo `.env` de la carpeta de la app, en tu PC. Sirve sólo para leer el correo. Si alguna vez se compromete, revocala en [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
-- La app **sólo lee** tu Gmail: busca los mails de `scw-noreply@pjn.gov.ar`. No manda mails, no borra y no marca nada como leído.
+- **La contraseña de aplicación de Gmail** se guarda en el archivo `.env` de la carpeta de la app, en tu PC. Google no permite limitarla: da acceso a todo tu correo, aunque la app sólo lea los avisos del PJN. Si alguna vez se compromete, o si dejás de usar la app, revocala en [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
+- La app **sólo lee** los avisos del PJN y no modifica nada de tu Gmail. Ver [Qué lee de tu Gmail](#qué-lee-de-tu-gmail).
 - La app escucha sólo en `127.0.0.1`: **no es accesible desde otra computadora** de la red.
 - El repositorio **nunca** incluye `.env`, la base, el Excel ni los PDFs. El [`.gitignore`](.gitignore) los bloquea. Si compartís la carpeta con alguien, **no** le pases `.env` ni `datos/`.
 
@@ -166,7 +187,7 @@ datos/
 | Problema | Qué hacer |
 |---|---|
 | "Gmail rechazó el acceso" | Tiene que ser una **contraseña de aplicación** (16 letras), no tu clave de Gmail. La verificación en 2 pasos tiene que estar activada. |
-| "Encontré 0 mails del PJN" | Revisá que los avisos lleguen a **esa** cuenta. Si se reenvían desde otra, configurá la otra. Probá con más días. |
+| "Encontré 0 mails del PJN" | Revisá que los avisos lleguen a **esa** cuenta, con remitente `scw-noreply@pjn.gov.ar`, y que no estén en Spam. Si te los reenvían desde otra casilla, ver [Si los avisos te llegan a otra casilla](#si-los-avisos-te-llegan-a-otra-casilla). |
 | "Usuario o contraseña del PJN incorrectos" | Probá entrar a mano en [portalpjn.pjn.gov.ar](https://portalpjn.pjn.gov.ar). |
 | El PJN no responde o da timeout | El PJN bloquea conexiones desde la nube y a veces está lento. Corré la app desde tu casa u oficina y reintentá más tarde: lo pendiente se retoma solo. |
 | "Falta instalar el navegador del scraper" | Corré `instalar.bat` de nuevo. |
