@@ -66,6 +66,7 @@ exit /b 1
 :error
 echo.
 echo  Algo fallo en la instalacion. Copia el mensaje de arriba y pedile ayuda
-echo  a Claude Code (ver INSTALAR_CON_CLAUDE.md) o a quien te paso la app.
+echo  a un asistente de IA (ver "Instalacion con ayuda de un asistente de IA"
+echo  en el README) o a quien te paso la app.
 pause
 exit /b 1
