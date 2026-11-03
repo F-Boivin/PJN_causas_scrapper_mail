@@ -126,6 +126,8 @@ Podés cambiar todo después con el botón **⚙**.
 3. Mirá el avance en vivo. **■ STOP** termina la causa en curso y frena; lo que falta queda para la próxima vez.
 4. Revisá las **alertas** y abrí el **Excel** con el botón 📊.
 
+En el **Historial**, el link **.txt** de cada barrido abre su registro completo: qué mails leyó, qué causas revisó, qué encontró y los errores. Queda guardado aunque cierres la app a mitad del barrido.
+
 La ventana negra que se abre junto con la app **es** la app: si la cerrás, se cierra.
 
 Una vez por día o por semana alcanza. Si no la abrís por más de 7 días, subí "Días hacia atrás" para no perder avisos.
@@ -206,6 +208,7 @@ Todo queda en la **carpeta de datos**:
 datos/
 ├── Novedades PJN.xlsx      el Excel (tuyo: podés anotar)
 ├── respaldos/              copias del Excel antes de cada cambio (las últimas 10)
+├── logs/                   el registro de cada barrido, en .txt
 ├── PDFs/
 │   └── CAF 99001-2026/
 │       └── 2026-10-28 FIRMA DESPACHO - SENTENCIA EXPEDITA - S17.pdf
@@ -221,12 +224,13 @@ Si elegís una carpeta de **Google Drive para escritorio** o de **OneDrive**, el
 - **La contraseña de aplicación de Gmail** se guarda en el archivo `.env` de la carpeta de la app, en tu PC. Google no permite limitarla: da acceso a todo tu correo, aunque la app sólo lea los avisos del PJN. Si alguna vez se compromete, o si dejás de usar la app, revocala en [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
 - La app **sólo lee** los avisos del PJN y no modifica nada de tu Gmail. Ver [Qué lee de tu Gmail](#qué-lee-de-tu-gmail).
 - La app escucha sólo en `127.0.0.1`: **no es accesible desde otra computadora** de la red.
-- El repositorio **nunca** incluye `.env`, la base, el Excel ni los PDFs. El [`.gitignore`](.gitignore) los bloquea. Si compartís la carpeta con alguien, **no** le pases `.env` ni `datos/`.
+- El repositorio **nunca** incluye `.env`, la base, el Excel, los PDFs ni los logs. El [`.gitignore`](.gitignore) los bloquea. Si compartís la carpeta con alguien, **no** le pases `.env` ni `datos/`.
 
 ## Problemas frecuentes
 
 | Problema | Qué hacer |
 |---|---|
+| Un barrido terminó con errores | Abrí su **.txt** en el Historial: dice en qué causa falló y por qué. Lo pendiente se reintenta solo en el próximo barrido. |
 | "Gmail rechazó el acceso" | Tiene que ser una **contraseña de aplicación** (16 letras), no tu clave de Gmail. La verificación en 2 pasos tiene que estar activada. |
 | "Encontré 0 mails del PJN" | Revisá que los avisos lleguen a **esa** cuenta, con remitente `scw-noreply@pjn.gov.ar`, y que no estén en Spam. Si te los reenvían desde otra casilla, ver [Si los avisos te llegan a otra casilla](#si-los-avisos-te-llegan-a-otra-casilla). |
 | "Usuario o contraseña del PJN incorrectos" | Probá entrar a mano en [portalpjn.pjn.gov.ar](https://portalpjn.pjn.gov.ar). |
@@ -308,6 +312,7 @@ Detalles de diseño:
 
 - **Dedup**: cada actuación tiene una clave md5 de (expediente, fecha, tipo, detalle, fojas). Re-correr no duplica.
 - **Paginación**: si la causa ya tiene actuaciones registradas, avanza páginas (15 filas cada una) hasta una sin nada nuevo, con tope de 5. Nunca registra actuaciones anteriores a la más vieja ya registrada, así no vuelca el histórico de causas viejas.
+- **Log**: la app escribe todo lo que imprime `scraper.py` en `logs/<aaaa-mm-dd hhmmss>.txt` de la carpeta de datos, línea a línea. `scraper.py` avisa con `CORRIDA_JSON` qué corrida de la base es, y el nombre sale de su inicio. El historial lo sirve en `/log/<id>`.
 - **STOP**: la app crea el archivo `.detener` y `scraper.py` lo mira entre causas, así ninguna queda a medias.
 - **Excel**: la base es la fuente de verdad de la app; el Excel no se regenera. En *Alertas*, *Actuaciones* y *Causas*, `excel.py` ubica sus columnas por el título y las filas por la columna oculta `ID`: agrega las que faltan al final y actualiza sólo las celdas de la app que cambiaron. *Por mes*, *Mails del PJN* y *Corridas* se reescriben. Si no cambió nada, no guarda. Antes de reemplazar el archivo deja una copia en `respaldos/`. Lo que escribe la persona vive sólo en el Excel (y en los respaldos), no en la base.
 - **Sin la app**: `PJN_PASSWORD=... python scraper.py` hace un barrido por consola, con la configuración del `.env`.

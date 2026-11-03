@@ -87,6 +87,7 @@ sólo para Windows.
 | "Gmail rechazó el acceso" | No es una contraseña de aplicación, o falta la verificación en 2 pasos. |
 | Probar conexión: 0 mails | La app busca sólo remitente `scw-noreply@pjn.gov.ar`, fuera de Spam y Papelera. Los avisos llegan a otra cuenta, se reenvían desde otra casilla, o hace más de 30 días que no llegan. Con reenvíos la app no funciona tal como está diseñada (ver "Si los avisos te llegan a otra casilla" en el README). Buscar por asunto implica cambiar el código (`gmail_pjn.buscar_novedades` y `tests/test_gmail.py`): sólo si la persona lo pide. |
 | "Usuario o contraseña del PJN incorrectos" | Que pruebe a mano en https://portalpjn.pjn.gov.ar |
+| Un barrido terminó con errores | Leer su `.txt` en `datos/logs` (el link **.txt** del Historial): dice en qué causa y por qué. Tiene datos de causas: no lo pegues fuera de esta PC. |
 | Timeouts del PJN | El PJN bloquea IPs de nube/datacenter: tiene que correr desde una conexión residencial u oficina en Argentina. A veces es lentitud del PJN: reintentar; lo pendiente se retoma solo. |
 | "La app ya está abierta" | Ya hay una instancia en el puerto 8770: usar esa pestaña, o cerrar su ventana negra. |
 | El Excel no se actualiza | Está abierto en Excel: cerrarlo y tocar **📊 Abrir Excel**, que agrega lo pendiente. |

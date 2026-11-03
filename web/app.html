@@ -270,8 +270,8 @@ td.n, th.n { text-align: right; }
       <h2>Historial</h2>
       <table>
         <thead><tr><th>Inicio</th><th>Estado</th><th class="n hide-sm">Mails</th><th class="n hide-sm">Causas</th>
-          <th class="n">Nuevas</th><th class="n">1° autos</th><th class="n">Sent.</th><th class="n hide-sm">Duración</th></tr></thead>
-        <tbody id="historial"><tr><td colspan="8" class="muted">…</td></tr></tbody>
+          <th class="n">Nuevas</th><th class="n">1° autos</th><th class="n">Sent.</th><th class="n hide-sm">Duración</th><th>Log</th></tr></thead>
+        <tbody id="historial"><tr><td colspan="9" class="muted">…</td></tr></tbody>
       </table>
     </div>
   </section>
@@ -510,10 +510,11 @@ async function cargarHistorial() {
       <td><span class="chip ${esc((j.estado || "").split(" ").pop())}">${esc(j.estado)}</span></td>
       <td class="n hide-sm">${j.mails ?? ""}</td><td class="n hide-sm">${j.causas ?? ""}</td>
       <td class="n">${j.nuevas ?? ""}</td><td class="n">${j.primeros_autos ?? ""}</td>
-      <td class="n">${j.sentencias ?? ""}</td><td class="n hide-sm">${esc(j.duracion)}</td></tr>`).join("")
-      : `<tr><td colspan="8" class="muted">Sin barridos todavía</td></tr>`;
+      <td class="n">${j.sentencias ?? ""}</td><td class="n hide-sm">${esc(j.duracion)}</td>
+      <td>${j.log ? `<a href="/log/${encodeURIComponent(j.id)}" target="_blank">.txt</a>` : ""}</td></tr>`).join("")
+      : `<tr><td colspan="9" class="muted">Sin barridos todavía</td></tr>`;
   } catch (err) {
-    $("historial").innerHTML = `<tr><td colspan="8" class="muted">No se pudo leer: ${esc(err.message)}</td></tr>`;
+    $("historial").innerHTML = `<tr><td colspan="9" class="muted">No se pudo leer: ${esc(err.message)}</td></tr>`;
   }
 }
 

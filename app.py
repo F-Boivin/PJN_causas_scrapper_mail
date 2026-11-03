@@ -9,7 +9,8 @@ desde esta PC):
 - Pide la clave del PJN: se verifica contra el SSO y vive sólo en memoria
   mientras la app está abierta — no se guarda.
 - Panel: buscar novedades (lanza scraper.py), progreso en vivo, STOP, alertas
-  de primer auto y sentencia (del último barrido y del mes) e historial.
+  de primer auto y sentencia (del último barrido y del mes) e historial, con
+  el log .txt de cada barrido (en la carpeta de datos, `logs/`).
 
 Cerrar la ventana negra = cerrar la app (y olvidar la clave).
 """
@@ -23,7 +24,7 @@ import sys
 import threading
 import time
 import webbrowser
-from datetime import date
+from datetime import date, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
@@ -84,6 +85,12 @@ def _correr(corrida: dict, cred: tuple):
 
     for raw in proc.stdout:
         linea = raw.rstrip("\n")
+        if linea.startswith("CORRIDA_JSON "):
+            try:
+                _abrir_log(corrida, json.loads(linea[len("CORRIDA_JSON "):]))
+            except json.JSONDecodeError:
+                pass
+            continue
         for marca, campo in (("PROGRESO_JSON ", "progreso"), ("RESUMEN_JSON ", "resumen")):
             if linea.startswith(marca):
                 try:
@@ -96,21 +103,70 @@ def _correr(corrida: dict, cred: tuple):
                         corrida["t_primera"] = time.time()
                 break
         else:
-            with lock:
-                corrida["lineas"].append(linea)
+            _agregar(corrida, linea)
     rc = proc.wait()
     vencido = not timeout.is_alive()
     timeout.cancel()
     if vencido:
-        with lock:
-            corrida["lineas"].append(f"[app] El barrido superó {TIMEOUT_CORRIDA // 3600} h y se cortó.")
+        _agregar(corrida, f"[app] El barrido superó {TIMEOUT_CORRIDA // 3600} h y se cortó.")
     if os.path.exists(STOP_FLAG):
         os.remove(STOP_FLAG)
+    _cerrar_log(corrida, rc)
     with lock:
         corrida["rc"] = rc
         corrida["activa"] = False
         corrida["fin"] = time.time()
     log_app(f"Barrido terminado (rc={rc})")
+
+
+def _agregar(corrida: dict, linea: str):
+    with lock:
+        corrida["lineas"].append(linea)
+    _escribir_log(corrida, linea)
+
+
+def _escribir_log(corrida: dict, linea: str):
+    f = corrida.get("txt")
+    if not f:
+        return
+    try:
+        f.write(linea + "\n")
+        f.flush()
+    except (OSError, ValueError):
+        pass
+
+
+def _abrir_log(corrida: dict, datos: dict):
+    """Abre el .txt del barrido cuando scraper.py avisa qué corrida de la base
+    es, con lo que ya había escrito. Se escribe línea a línea: queda aunque la
+    app se cierre a mitad del barrido."""
+    ruta = config.ruta_log(config.leer(), datos.get("inicio"))
+    if not ruta:
+        return
+    try:
+        ruta.parent.mkdir(parents=True, exist_ok=True)
+        corrida["txt"] = open(ruta, "w", encoding="utf-8")
+    except OSError as e:
+        _agregar(corrida, f"[app] No se pudo crear el log .txt: {e}")
+        return
+    inicio = datetime.strptime(datos["inicio"], "%Y-%m-%d %H:%M:%S")
+    _escribir_log(corrida, f"PJN Novedades · barrido {datos.get('id')} · {corrida['origen']}"
+                           f" · inicio {inicio:%d/%m/%Y %H:%M:%S}")
+    _escribir_log(corrida, "")
+    with lock:
+        previas = list(corrida["lineas"])
+    for linea in previas:
+        _escribir_log(corrida, linea)
+
+
+def _cerrar_log(corrida: dict, rc: int):
+    duracion = timedelta(seconds=int(time.time() - corrida["inicio"]))
+    _escribir_log(corrida, "")
+    _escribir_log(corrida, f"Fin {datetime.now():%d/%m/%Y %H:%M:%S} · duración {duracion}"
+                           + (f" · scraper.py terminó con error (código {rc})" if rc else ""))
+    f = corrida.pop("txt", None)
+    if f:
+        f.close()
 
 
 def detener():
@@ -210,8 +266,18 @@ def vista_alertas(mes: str) -> dict:
 
 
 def vista_historial() -> list:
-    with almacen.abrir(config.ruta_db(config.leer())) as con:
-        return almacen.historial(con, 10)
+    cfg = config.leer()
+    with almacen.abrir(config.ruta_db(cfg)) as con:
+        filas = almacen.historial(con, 10)
+    for f in filas:
+        f["log"] = bool(ruta_log(cfg, f))
+    return filas
+
+
+def ruta_log(cfg: dict, corrida: dict | None) -> Path | None:
+    """El .txt de un barrido, si existe."""
+    p = config.ruta_log(cfg, corrida["inicio"]) if corrida else None
+    return p if p and p.is_file() else None
 
 
 def abrir_en_sistema(ruta: Path):
@@ -303,6 +369,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(vista_historial())
             elif ruta.startswith("/pdf/"):
                 self._pdf(unquote(ruta[len("/pdf/"):]))
+            elif ruta.startswith("/log/"):
+                self._log(ruta[len("/log/"):])
             else:
                 self._json({"error": "no existe"}, 404)
         except Exception as e:
@@ -318,6 +386,18 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": "PDF no encontrado"}, 404)
             return
         self._archivo(p, mimetypes.guess_type(p.name)[0] or "application/pdf")
+
+    def _log(self, corrida_id: str):
+        cfg = config.leer()
+        c = None
+        if corrida_id.isascii() and corrida_id.isdigit():
+            with almacen.abrir(config.ruta_db(cfg)) as con:
+                c = almacen.corrida(con, int(corrida_id))
+        p = ruta_log(cfg, c)
+        if not p:
+            self._json({"error": "Ese barrido no tiene log"}, 404)
+            return
+        self._archivo(p, "text/plain; charset=utf-8")
 
     def do_POST(self):
         if not self._permitido():

@@ -9,6 +9,7 @@ token*.json
 
 # --- Datos de causas (carátulas, CUIT, nombres): NUNCA al repo ---
 datos/
+logs/
 *.db
 *.db-wal
 *.db-shm

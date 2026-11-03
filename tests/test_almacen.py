@@ -1,7 +1,8 @@
-"""La cola de causas, la configuración (.env) y su validación, sin red."""
+"""La base (cola de causas, apertura), la configuración (.env) y su validación, sin red."""
 
 import sys
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -58,6 +59,44 @@ class TestCola(unittest.TestCase):
             cid = almacen.crear_corrida(con, "test")
             almacen.marcar_procesadas(con, ["1"], cid)
             self.assertEqual(almacen.cola(con)["causas"], [])
+
+
+class TestAbrir(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+
+    def test_base_nueva_abierta_desde_varios_hilos(self):
+        # Al entrar por primera vez el panel pide alertas e historial a la vez:
+        # antes, a veces uno daba "database is locked".
+        fallas = []
+        for n in range(30):
+            ruta = Path(self.tmp.name) / f"b{n}" / "pjn_novedades.db"
+            largada = threading.Barrier(4)
+
+            def leer():
+                largada.wait()
+                try:
+                    with almacen.abrir(ruta) as con:
+                        con.execute("SELECT count(*) FROM corridas").fetchone()
+                except Exception as e:
+                    fallas.append(e)
+
+            hilos = [threading.Thread(target=leer) for _ in range(4)]
+            for h in hilos:
+                h.start()
+            for h in hilos:
+                h.join()
+        self.assertEqual(fallas, [])
+
+    def test_base_vieja_se_pone_al_dia_sin_perder_nada(self):
+        ruta = Path(self.tmp.name) / "pjn_novedades.db"
+        with almacen.abrir(ruta) as con:
+            cid = almacen.crear_corrida(con, "test")
+            con.execute("PRAGMA user_version = 0")  # como las bases de antes
+        with almacen.abrir(ruta) as con:
+            self.assertEqual(con.execute("PRAGMA user_version").fetchone()[0], almacen.VERSION)
+            self.assertEqual(almacen.corrida(con, cid)["origen"], "test")
 
 
 class TestConfig(unittest.TestCase):

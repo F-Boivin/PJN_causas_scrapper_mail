@@ -9,15 +9,15 @@
        archivo, como "A DESPACHO" o "EXPEDIENTE EN LETRA", son ruido procesal)
        y descarga su PDF.
     5. Marca las que son primer auto o sentencia (`clasificador.alerta`).
-    6. Regenera el Excel.
+    6. Actualiza el Excel.
 
 Idempotente: re-correr no duplica (clave md5 por actuación). Si una causa
 falla, sus mails quedan pendientes y el próximo barrido la reintenta.
 
 Lo lanza la app (iniciar.bat), que pasa la clave del PJN por el entorno. Sin
-la app: `PJN_PASSWORD=... python scraper.py`. Emite `PROGRESO_JSON` por causa
-y `RESUMEN_JSON` al final (los lee la app); respeta el archivo `.detener`
-entre causas.
+la app: `PJN_PASSWORD=... python scraper.py`. Emite `CORRIDA_JSON` al crear
+la corrida en la base, `PROGRESO_JSON` por causa y `RESUMEN_JSON` al final
+(los lee la app); respeta el archivo `.detener` entre causas.
 """
 
 import json
@@ -174,6 +174,11 @@ def procesar_causa(page, item: dict, claves: set, desde: dict, cfg: dict, cred: 
             "historicas": sum(f["historica"] for f in nuevas)}
 
 
+def corrida_json(**datos):
+    """Qué corrida de la base es este barrido: con esto la app nombra su .txt."""
+    print("CORRIDA_JSON " + json.dumps(datos), flush=True)
+
+
 def progreso(**datos):
     """Línea estructurada para la barra de progreso de la app."""
     print("PROGRESO_JSON " + json.dumps(datos), flush=True)
@@ -209,6 +214,7 @@ def main() -> int:
     with almacen.abrir(config.ruta_db(cfg)) as con:
         almacen.cerrar_colgadas(con)
         corrida_id = almacen.crear_corrida(con, origen)
+        corrida_json(id=corrida_id, inicio=almacen.corrida(con, corrida_id)["inicio"])
 
         # 1. Gmail
         dias = config.dias_atras(cfg)

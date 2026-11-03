@@ -13,6 +13,7 @@ Tablas:
 """
 
 import sqlite3
+import time
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
@@ -74,6 +75,7 @@ CREATE TABLE IF NOT EXISTS corridas (
     detalle       TEXT
 );
 """
+VERSION = 1  # PRAGMA user_version una vez creado ESQUEMA: subirla si cambia
 
 
 def ahora() -> str:
@@ -87,12 +89,29 @@ def abrir(ruta: Path):
     con = sqlite3.connect(str(ruta), timeout=30)
     con.row_factory = sqlite3.Row
     try:
-        con.execute("PRAGMA journal_mode=WAL")
-        con.executescript(ESQUEMA)
+        _pasar_a_wal(con)
+        if con.execute("PRAGMA user_version").fetchone()[0] < VERSION:
+            # BEGIN IMMEDIATE toma la escritura antes de leer el esquema: dos
+            # aperturas a la vez de una base nueva (el panel pide alertas e
+            # historial juntos) esperan su turno en vez de dar "database is locked".
+            con.executescript(f"BEGIN IMMEDIATE; {ESQUEMA} PRAGMA user_version = {VERSION}; COMMIT;")
         yield con
         con.commit()
     finally:
         con.close()
+
+
+def _pasar_a_wal(con, intentos: int = 50):
+    """En una base nueva, si otra conexión la está pasando a WAL a la vez,
+    SQLite no espera el timeout: da "database is locked" en el acto."""
+    for i in range(intentos):
+        try:
+            con.execute("PRAGMA journal_mode=WAL")
+            return
+        except sqlite3.OperationalError as e:
+            if "locked" not in str(e) or i == intentos - 1:
+                raise
+            time.sleep(0.1)
 
 
 # ---------------------------------------------------------------------------
@@ -230,6 +249,11 @@ def cerrar_colgadas(con):
 def historial(con, n: int = 10) -> list[dict]:
     return [dict(r) for r in con.execute(
         "SELECT * FROM corridas ORDER BY id DESC LIMIT ?", (n,))]
+
+
+def corrida(con, corrida_id: int) -> dict | None:
+    r = con.execute("SELECT * FROM corridas WHERE id = ?", (corrida_id,)).fetchone()
+    return dict(r) if r else None
 
 
 # ---------------------------------------------------------------------------

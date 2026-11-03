@@ -7,6 +7,7 @@ La clave del PJN NO se guarda: la app la pide al abrir y vive sólo en memoria.
 """
 
 import os
+from datetime import datetime
 from pathlib import Path
 
 from dotenv import dotenv_values
@@ -129,6 +130,15 @@ def ruta_excel(cfg: dict) -> Path:
 
 def carpeta_pdfs(cfg: dict) -> Path:
     return carpeta_datos(cfg) / "PDFs"
+
+
+def ruta_log(cfg: dict, inicio: str) -> Path | None:
+    """logs/<aaaa-mm-dd hhmmss>.txt de un barrido, por su inicio en la base."""
+    try:
+        t = datetime.strptime(inicio, "%Y-%m-%d %H:%M:%S")
+    except (TypeError, ValueError):
+        return None
+    return carpeta_datos(cfg) / "logs" / f"{t:%Y-%m-%d %H%M%S}.txt"
 
 
 def dias_atras(cfg: dict) -> int:
